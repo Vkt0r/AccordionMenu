@@ -30,6 +30,12 @@ open class AccordionTableViewController: UITableViewController {
     
     /// The index of the last cell expanded and its parent.
     var lastCellExpanded : (Int, Int)!
+
+    /// Add picture in the parentCell
+    open var parentImage = UIImage()
+
+    /// Add picture in the childCell
+    open var childImage = UIImage()
     
     override open func viewDidLoad() {
         super.viewDidLoad()
@@ -206,10 +212,12 @@ extension AccordionTableViewController {
         if !isParentCell {
             cell = tableView.dequeueReusableCell(withIdentifier: childCellIdentifier, for: indexPath)
             cell.textLabel!.text = self.dataSource[parent].childs[indexPath.row - actualPosition - 1]
+            cell.imageView?.image = childImage // set the image to the child cell
         }
         else {
             cell = tableView.dequeueReusableCell(withIdentifier: parentCellIdentifier, for: indexPath)
             cell.textLabel!.text = self.dataSource[parent].title
+            cell.imageView?.image = parentImage // set the image to the parent cell
         }
         
         return cell
