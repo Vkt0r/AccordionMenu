@@ -93,6 +93,29 @@ open class AccordionTableViewController: UITableViewController {
         self.total -= numberOfChilds
     }
     
+    fileprivate func collapseSingle(_ parent: Int, _ index: Int) {
+        // exist one cell expanded previously
+        if lastCellExpanded != noCellExpanded {
+            
+            let (indexOfCellExpanded, parentOfCellExpanded) = self.lastCellExpanded
+            
+            self.collapseSubItemsAtIndex(indexOfCellExpanded, parent: parentOfCellExpanded)
+            
+            // cell tapped is below of previously expanded, then we need to update the index to expand.
+            if parent > parentOfCellExpanded {
+                let newIndex = index - self.dataSource[parentOfCellExpanded].childs.count
+                self.expandItemAtIndex(newIndex, parent: parent)
+                self.lastCellExpanded = (newIndex, parent)
+            } else {
+                self.expandItemAtIndex(index, parent: parent)
+                self.lastCellExpanded = (index, parent)
+            }
+        } else {
+            self.expandItemAtIndex(index, parent: parent)
+            self.lastCellExpanded = (index, parent)
+        }
+    }
+    
     /**
      Update the cells to expanded to collapsed state in case of allow severals cells expanded.
      
@@ -104,52 +127,30 @@ open class AccordionTableViewController: UITableViewController {
         switch (self.dataSource[parent].state) {
             
         case .expanded:
-            self.collapseSubItemsAtIndex(index, parent: parent)
-            self.lastCellExpanded = noCellExpanded
+            collapseSubItemsAtIndex(index, parent: parent)
+            lastCellExpanded = noCellExpanded
             
         case .collapsed:
             switch (numberOfCellsExpanded) {
             case .one:
-                // exist one cell expanded previously
-                if self.lastCellExpanded != noCellExpanded {
-                    
-                    let (indexOfCellExpanded, parentOfCellExpanded) = self.lastCellExpanded
-                    
-                    self.collapseSubItemsAtIndex(indexOfCellExpanded, parent: parentOfCellExpanded)
-                    
-                    // cell tapped is below of previously expanded, then we need to update the index to expand.
-                    if parent > parentOfCellExpanded {
-                        let newIndex = index - self.dataSource[parentOfCellExpanded].childs.count
-                        self.expandItemAtIndex(newIndex, parent: parent)
-                        self.lastCellExpanded = (newIndex, parent)
-                    } else {
-                        self.expandItemAtIndex(index, parent: parent)
-                        self.lastCellExpanded = (index, parent)
-                    }
-                } else {
-                    self.expandItemAtIndex(index, parent: parent)
-                    self.lastCellExpanded = (index, parent)
-                }
+                collapseSingle(parent, index)
             case .several:
                 self.expandItemAtIndex(index, parent: parent)
             }
         }
     }
     
-    /**
-     Find the parent position in the initial list, if the cell is parent and the actual position in the actual list.
-     
-     - parameter index: The index of the cell
-     
-     - returns: A tuple with the parent position, if it's a parent cell and the actual position righ now.
-     */
-    open func findParent(_ index : Int) -> (parent: Int, isParentCell: Bool, actualPosition: Int) {
+    fileprivate func locateParent(_ position: Int, _ index: Int, _ parent: Int, _ item: inout Parent) -> (parent: Int, isParentCell: Bool, actualPosition: Int) {
+        // if it's a parent cell the indexes are equal.
+        if position == index {
+            return (parent, position == index, position)
+        }
         
-        var position = 0, parent = 0
-        guard position < index else { return (parent, true, parent) }
-        
-        var item = self.dataSource[parent]
-        
+        item = self.dataSource[parent - 1]
+        return (parent - 1, position == index, position - item.childs.count - 1)
+    }
+    
+    fileprivate func processStateFor(_ item: inout Parent, _ position: inout Int, _ parent: inout Int, _ index: Int) {
         repeat {
             
             switch (item.state) {
@@ -167,14 +168,24 @@ open class AccordionTableViewController: UITableViewController {
             }
             
         } while (position < index)
+    }
+    
+    /**
+     Find the parent position in the initial list, if the cell is parent and the actual position in the actual list.
+     
+     - parameter index: The index of the cell
+     
+     - returns: A tuple with the parent position, if it's a parent cell and the actual position righ now.
+     */
+    open func findParent(_ index : Int) -> (parent: Int, isParentCell: Bool, actualPosition: Int) {
         
-        // if it's a parent cell the indexes are equal.
-        if position == index {
-            return (parent, position == index, position)
-        }
+        var position = 0, parent = 0
+        guard position < index else { return (parent, true, parent) }
         
-        item = self.dataSource[parent - 1]
-        return (parent - 1, position == index, position - item.childs.count - 1)
+        var item = self.dataSource[parent]
+        processStateFor(&item, &position, &parent, index)
+        
+        return locateParent(position, index, parent, &item)
     }
 }
 
