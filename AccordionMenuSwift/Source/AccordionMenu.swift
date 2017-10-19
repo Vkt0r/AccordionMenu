@@ -46,10 +46,10 @@ open class AccordionTableViewController: UITableViewController {
     open func expandItemAtIndex(_ index : Int, parent: Int) {
         
         // the data of the childs for the specific parent cell.
-        let currentSubItems = self.dataSource[parent].childs
+        let currentSubItems = dataSource[parent].childs
         
         // update the state of the cell.
-        self.dataSource[parent].state = .expanded
+        dataSource[parent].state = .expanded
         
         // position to start to insert rows.
         var insertPos = index + 1
@@ -61,10 +61,10 @@ open class AccordionTableViewController: UITableViewController {
         }
         
         // insert the new rows
-        self.tableView.insertRows(at: indexPaths, with: UITableViewRowAnimation.fade)
+        tableView.insertRows(at: indexPaths, with: UITableViewRowAnimation.fade)
         
         // update the total of rows
-        self.total += currentSubItems.count
+        total += currentSubItems.count
     }
     
     /**
@@ -76,10 +76,10 @@ open class AccordionTableViewController: UITableViewController {
         
         var indexPaths = [IndexPath]()
         
-        let numberOfChilds = self.dataSource[parent].childs.count
+        let numberOfChilds = dataSource[parent].childs.count
         
         // update the state of the cell.
-        self.dataSource[parent].state = .collapsed
+        dataSource[parent].state = .collapsed
         
         guard index + 1 <= index + numberOfChilds else { return }
         
@@ -87,32 +87,32 @@ open class AccordionTableViewController: UITableViewController {
         indexPaths = (index + 1...index + numberOfChilds).map { IndexPath(row: $0, section: 0)}
         
         // remove the expanded cells
-        self.tableView.deleteRows(at: indexPaths, with: UITableViewRowAnimation.fade)
+        tableView.deleteRows(at: indexPaths, with: UITableViewRowAnimation.fade)
         
         // update the total of rows
-        self.total -= numberOfChilds
+        total -= numberOfChilds
     }
     
     fileprivate func collapseSingle(_ parent: Int, _ index: Int) {
         // exist one cell expanded previously
         if lastCellExpanded != noCellExpanded {
             
-            let (indexOfCellExpanded, parentOfCellExpanded) = self.lastCellExpanded
+            let (indexOfCellExpanded, parentOfCellExpanded) = lastCellExpanded
             
-            self.collapseSubItemsAtIndex(indexOfCellExpanded, parent: parentOfCellExpanded)
+            collapseSubItemsAtIndex(indexOfCellExpanded, parent: parentOfCellExpanded)
             
             // cell tapped is below of previously expanded, then we need to update the index to expand.
             if parent > parentOfCellExpanded {
-                let newIndex = index - self.dataSource[parentOfCellExpanded].childs.count
-                self.expandItemAtIndex(newIndex, parent: parent)
-                self.lastCellExpanded = (newIndex, parent)
+                let newIndex = index - dataSource[parentOfCellExpanded].childs.count
+                expandItemAtIndex(newIndex, parent: parent)
+                lastCellExpanded = (newIndex, parent)
             } else {
-                self.expandItemAtIndex(index, parent: parent)
-                self.lastCellExpanded = (index, parent)
+                expandItemAtIndex(index, parent: parent)
+                lastCellExpanded = (index, parent)
             }
         } else {
-            self.expandItemAtIndex(index, parent: parent)
-            self.lastCellExpanded = (index, parent)
+            expandItemAtIndex(index, parent: parent)
+            lastCellExpanded = (index, parent)
         }
     }
     
@@ -124,7 +124,7 @@ open class AccordionTableViewController: UITableViewController {
      */
     open func updateCells(_ parent: Int, index: Int) {
         
-        switch (self.dataSource[parent].state) {
+        switch (dataSource[parent].state) {
             
         case .expanded:
             collapseSubItemsAtIndex(index, parent: parent)
@@ -135,7 +135,7 @@ open class AccordionTableViewController: UITableViewController {
             case .one:
                 collapseSingle(parent, index)
             case .several:
-                self.expandItemAtIndex(index, parent: parent)
+                expandItemAtIndex(index, parent: parent)
             }
         }
     }
@@ -146,7 +146,7 @@ open class AccordionTableViewController: UITableViewController {
             return (parent, position == index, position)
         }
         
-        item = self.dataSource[parent - 1]
+        item = dataSource[parent - 1]
         return (parent - 1, position == index, position - item.childs.count - 1)
     }
     
@@ -163,8 +163,8 @@ open class AccordionTableViewController: UITableViewController {
             parent += 1
             
             // if is not outside of dataSource boundaries
-            if parent < self.dataSource.count {
-                item = self.dataSource[parent]
+            if parent < dataSource.count {
+                item = dataSource[parent]
             }
             
         } while (position < index)
@@ -182,7 +182,7 @@ open class AccordionTableViewController: UITableViewController {
         var position = 0, parent = 0
         guard position < index else { return (parent, true, parent) }
         
-        var item = self.dataSource[parent]
+        var item = dataSource[parent]
         processStateFor(&item, &position, &parent, index)
         
         return locateParent(position, index, parent, &item)
@@ -198,21 +198,21 @@ extension AccordionTableViewController {
     }
     
     override open func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.total
+        return total
     }
     
     override open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         var cell: UITableViewCell!
         
-        let (parent, isParentCell, actualPosition) = self.findParent(indexPath.row)
+        let (parent, isParentCell, actualPosition) = findParent(indexPath.row)
         
         if !isParentCell {
             cell = tableView.dequeueReusableCell(withIdentifier: childCellIdentifier, for: indexPath)
-            cell.textLabel!.text = self.dataSource[parent].childs[indexPath.row - actualPosition - 1]
+            cell.textLabel!.text = dataSource[parent].childs[indexPath.row - actualPosition - 1]
         } else {
             cell = tableView.dequeueReusableCell(withIdentifier: parentCellIdentifier, for: indexPath)
-            cell.textLabel!.text = self.dataSource[parent].title
+            cell.textLabel!.text = dataSource[parent].title
         }
         
         return cell
@@ -222,23 +222,23 @@ extension AccordionTableViewController {
     
     override open func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        let (parent, isParentCell, actualPosition) = self.findParent(indexPath.row)
+        let (parent, isParentCell, actualPosition) = findParent(indexPath.row)
         
         guard isParentCell else {
             NSLog("A child was tapped!!!")
             
             // The value of the child is indexPath.row - actualPosition - 1
-            NSLog("The value of the child is \(self.dataSource[parent].childs[indexPath.row - actualPosition - 1])")
+            NSLog("The value of the child is \(dataSource[parent].childs[indexPath.row - actualPosition - 1])")
             
             return
         }
         
-        self.tableView.beginUpdates()
-        self.updateCells(parent, index: indexPath.row)
-        self.tableView.endUpdates()
+        tableView.beginUpdates()
+        updateCells(parent, index: indexPath.row)
+        tableView.endUpdates()
     }
     
     override open func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return !self.findParent(indexPath.row).isParentCell ? 44.0 : 64.0
+        return !findParent(indexPath.row).isParentCell ? 44.0 : 64.0
     }
 }
