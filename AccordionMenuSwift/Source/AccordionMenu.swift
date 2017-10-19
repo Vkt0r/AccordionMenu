@@ -26,23 +26,18 @@ open class AccordionTableViewController: UITableViewController {
     open var numberOfCellsExpanded: NumberOfCellExpanded = .one
     
     /// Constant to define the values for the tuple in case of not exist a cell expanded.
-    let NoCellExpanded = (-1, -1)
+    let noCellExpanded = (-1, -1)
     
     /// The index of the last cell expanded and its parent.
-    var lastCellExpanded : (Int, Int)!
+    var lastCellExpanded: (Int, Int)!
     
     override open func viewDidLoad() {
         super.viewDidLoad()
         
-        self.lastCellExpanded = NoCellExpanded
-        self.tableView.tableFooterView = UIView()
+        lastCellExpanded = noCellExpanded
+        tableView.tableFooterView = UIView()
     }
-    
-    override open func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-    }
-    
-    
+
     /**
      Expand the cell at the index specified.
      
@@ -110,13 +105,13 @@ open class AccordionTableViewController: UITableViewController {
             
         case .expanded:
             self.collapseSubItemsAtIndex(index, parent: parent)
-            self.lastCellExpanded = NoCellExpanded
+            self.lastCellExpanded = noCellExpanded
             
         case .collapsed:
             switch (numberOfCellsExpanded) {
             case .one:
                 // exist one cell expanded previously
-                if self.lastCellExpanded != NoCellExpanded {
+                if self.lastCellExpanded != noCellExpanded {
                     
                     let (indexOfCellExpanded, parentOfCellExpanded) = self.lastCellExpanded
                     
@@ -127,13 +122,11 @@ open class AccordionTableViewController: UITableViewController {
                         let newIndex = index - self.dataSource[parentOfCellExpanded].childs.count
                         self.expandItemAtIndex(newIndex, parent: parent)
                         self.lastCellExpanded = (newIndex, parent)
-                    }
-                    else {
+                    } else {
                         self.expandItemAtIndex(index, parent: parent)
                         self.lastCellExpanded = (index, parent)
                     }
-                }
-                else {
+                } else {
                     self.expandItemAtIndex(index, parent: parent)
                     self.lastCellExpanded = (index, parent)
                 }
@@ -197,17 +190,16 @@ extension AccordionTableViewController {
         return self.total
     }
     
-    override  open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    override open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        var cell : UITableViewCell!
+        var cell: UITableViewCell!
         
         let (parent, isParentCell, actualPosition) = self.findParent(indexPath.row)
         
         if !isParentCell {
             cell = tableView.dequeueReusableCell(withIdentifier: childCellIdentifier, for: indexPath)
             cell.textLabel!.text = self.dataSource[parent].childs[indexPath.row - actualPosition - 1]
-        }
-        else {
+        } else {
             cell = tableView.dequeueReusableCell(withIdentifier: parentCellIdentifier, for: indexPath)
             cell.textLabel!.text = self.dataSource[parent].title
         }
@@ -215,7 +207,7 @@ extension AccordionTableViewController {
         return cell
     }
     
-    // MARK: UITableViewDelegate
+    // MARK: - UITableViewDelegate
     
     override open func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
