@@ -3,13 +3,33 @@ fastlane_version "1.108.0"
 default_platform :ios
 
 platform :ios do
-  desc "Runs all the tests"
-  lane :test do
-    scan(
-        scheme: "AccordionMenuSwift",
-        clean: true,
-        sdk: "iphonesimulator",
-        destination: "name=iPhone 6"
+
+  desc "Run the danger lane with the specified Dangerfile"
+  private_lane :run_danger do |options|
+    # run danger to check everything in the pull request before build it
+    danger(
+      dangerfile: options[:path],
+      fail_on_errors: true
     )
+  end
+
+  desc "Runs all the tests and the lint rules"
+  lane :test do
+
+    # run danger to check everything in the pull request before build it
+    run_danger
+
+    # run the tests, clean the project before start
+    scan(
+      clean: true,
+      device: 'iPhone 7',
+      scheme: 'AccordionMenuSwift',
+      skip_build: true,
+      output_types: 'junit',
+      output_files: 'test-report.xml'
+    )
+
+    # run danger to send the XCOV to the PR
+    run_danger(path: "Dangerfile.cv.rb")
   end
 end
