@@ -1,0 +1,101 @@
+disabled_rules: # rule identifiers to exclude from running
+  - colon
+  - comma
+  - control_statement
+  - trailing_whitespace
+  - missing_docs
+opt_in_rules: # some rules are only opt-in
+  - empty_count
+  # Find all the available rules by running:
+  # swiftlint rules
+included: # paths to include during linting. `--path` is ignored if present.
+  - AccordionMenuSwift
+excluded: # paths to ignore during linting. Takes precedence over `included`.
+  - Example
+
+# configurable rules can be customized from this configuration file
+# binary rules can set their severity level
+force_cast: warning # implicitly
+force_try:
+  severity: warning # explicitly
+# rules that have both warning and error levels, can set just the warning level
+# implicitly
+line_length: 200
+# they can set both implicitly with an array
+type_body_length:
+  - 300 # warning
+  - 400 # error
+# or they can set both explicitly
+file_length:
+  warning: 500
+  error: 1200
+# naming rules can set warnings/errors for min_length and max_length
+# additionally they can set excluded names
+type_name:
+  min_length: 4 # only warning
+  max_length: # warning and error
+    warning: 40
+    error: 50
+  excluded:
+    - iPhone # excluded via string
+    - eBuilderAPI
+    - eBuilderEventLog
+identifier_name:
+  min_length: # only min_length
+    warning: 2
+    error: 2 # only error
+reporter: "xcode" # reporter type (xcode, json, csv, checkstyle, junit
+
+cyclomatic_complexity:
+  warning: 4 # two nested ifs are acceptable
+  error: 4   # two nested ifs shows warning, 3 causes compile error
+
+function_parameter_count:
+  warning: 5
+  error: 6
+
+large_tuple:
+  warning: 3
+  error: 3
+
+custom_rules:
+  associates_colon_with_identifier:
+    included: ".*.swift" # regex that defines paths to include during linting. optional.
+    name: "Colon Identifiers" # rule name. optional.
+    regex: '(\s)+(var|let)(\s)+(\w)+(\s+)(:)' # matching pattern
+    message: "Always put the colon immediately after the identifier." # violation message. optional.
+    severity: warning # violation severity. optional.
+  space_after_colon_with_identifier:
+     included: ".*.swift" # regex that defines paths to include during linting. optional.
+     name: "Space after colon for identifiers" # rule name. optional.
+     regex: '(\s)+(var|let)(\s)+(\w)+(:)(\w)+' # matching pattern
+     message: "Always put a blank space after the colon immediately after the identifier." # violation message. optional.
+     severity: warning # violation severity. optional.
+  space_after_colon_with_dictionary:
+     included: ".*.swift" # regex that defines paths to include during linting. optional.
+     name: "Space after colon for dictionary type" # rule name. optional.
+     regex: '\[((\"*)*(\w+)(\"*)):((\"*)(\w+)(\"*))\]' # matching pattern
+     message: "When specifying the type of a dictionary, always put the colon immediately after the key type, followed by a space."
+     severity: warning # violation severity. optional.
+  comments_space:
+     name: "Space After Comment"
+     regex: '(^ *//\w+)'
+     message: "There should be a space after //"
+     severity: warning
+  double_space:
+     include: "*.swift"
+     name: "Double space"
+     regex: '([a-z,A-Z] \s+)'
+     message: "Double space between keywords"
+     match_kinds: keyword
+     severity: warning
+  multiple_empty_lines:
+      name: "Multiple Empty Lines"
+      regex: '((?:\s*\n){3,})'
+      message: "There are too many line breaks"
+      severity: warning
+  empty_first_line:
+      name: "Empty First Line"
+      regex: '(^[ a-zA-Z ]*(?:protocol|extension|class|struct) (?!(?:var|let))[ a-zA-Z:]*\{\n *\S+)'
+      message: "There should be an empty line after a declaration"
+      severity: warning

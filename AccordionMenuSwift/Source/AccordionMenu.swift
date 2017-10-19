@@ -187,7 +187,7 @@ open class AccordionTableViewController: UITableViewController {
 
 extension AccordionTableViewController {
     
-    // MARK: UITableViewDataSource
+    // MARK: - UITableViewDataSource
     
     override open func numberOfSections(in tableView: UITableView) -> Int {
         return 1
