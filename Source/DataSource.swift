@@ -9,7 +9,7 @@
 import Foundation
 
 /// Defines a sectioned data source to be displayed in the UITableView
-public struct DataSource<Item: ParentType> {
+open class DataSource<Item: ParentType> {
     
     // MARK: - Properties
     
@@ -39,7 +39,7 @@ public struct DataSource<Item: ParentType> {
     /// - Parameters:
     ///   - item: The item to be inserted.
     ///   - indexPath: The index path specifying the location for the item.
-    public mutating func insert(item: Item, at indexPath: IndexPath) {
+    public func insert(item: Item, at indexPath: IndexPath) {
         insert(item: item, atRow: indexPath.row, inSection: indexPath.section)
     }
     
@@ -49,7 +49,7 @@ public struct DataSource<Item: ParentType> {
     ///   - item: The item to insert.
     ///   - row:  The row index of the item.
     ///   - section: The section index of the item.
-    public mutating func insert(item: Item, atRow row: Int, inSection section: Int) {
+    public func insert(item: Item, atRow row: Int, inSection section: Int) {
         guard section < numberOfSections() else { return }
         guard row <= numberOfItems(inSection: section) else { return }
         sections[section].items.insert(item, at: row)
@@ -60,7 +60,7 @@ public struct DataSource<Item: ParentType> {
     /// - Parameters:
     ///   - item:  The item to be added.
     ///   - section: The section location for the item.
-    public mutating func append(_ item: Item, inSection section: Int) {
+    public func append(_ item: Item, inSection section: Int) {
         guard let items = items(inSection: section) else { return }
         insert(item: item, atRow: items.endIndex, inSection: section)
     }
@@ -72,7 +72,7 @@ public struct DataSource<Item: ParentType> {
     ///   - section: The section location of the item.
     /// - Returns: The item removed, otherwise nil if it does not exist.
     @discardableResult
-    public mutating func remove(atRow row: Int, inSection section: Int) -> Item? {
+    public func remove(atRow row: Int, inSection section: Int) -> Item? {
         guard item(atRow: row, inSection: section) != nil else { return nil }
         return sections[section].items.remove(at: row)
     }
@@ -82,7 +82,7 @@ public struct DataSource<Item: ParentType> {
     /// - Parameter indexPath: The index path specifying the location of the item.
     /// - Returns:  The item at `indexPath`, otherwise nil if it does not exist.
     @discardableResult
-    public mutating func remove(at indexPath: IndexPath) -> Item? {
+    public func remove(at indexPath: IndexPath) -> Item? {
         return remove(atRow: indexPath.row, inSection: indexPath.section)
     }
     
@@ -144,14 +144,14 @@ extension DataSource: DataSourceType {
         return items[parentIndex].childs[row - currentPos - 1]
     }
     
-    public mutating func expandParent(atIndexPath indexPath: IndexPath, parentIndex: Int) {
+    public func expandParent(atIndexPath indexPath: IndexPath, parentIndex: Int) {
         let section = indexPath.section
         guard var items = items(inSection: section) else { return }
         items[parentIndex].state = .expanded
         sections[section].total += items[parentIndex].childs.count
     }
     
-    public mutating func collapseChilds(atIndexPath indexPath: IndexPath, parentIndex: Int) {
+    public func collapseChilds(atIndexPath indexPath: IndexPath, parentIndex: Int) {
         let section = indexPath.section
         guard var items = items(inSection: section) else { return }
         items[parentIndex].state = .collapsed
