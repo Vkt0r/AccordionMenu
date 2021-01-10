@@ -4,7 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "AccordionSwift",
-    platforms: [.iOS(.v10)],
+    platforms: [.iOS(.v9)],
     products: [
         .library(
             name: "AccordionSwift",
