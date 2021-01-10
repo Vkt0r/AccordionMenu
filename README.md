@@ -31,7 +31,7 @@ _An accordion/dropdown menu to integrate in your projects. This library is proto
 
 
 ## Requirements 💥
-- iOS 10.0+
+- iOS 9.0+
 - Xcode 10.2+
 
 ## Installation
@@ -50,7 +50,7 @@ To integrate AccordionSwift into your Xcode project using CocoaPods, specify it 
 
 ```ruby
 source 'https://github.com/CocoaPods/Specs.git'
-platform :ios, '10.0'
+platform :ios, '9.0'
 use_frameworks!
 
 target '<Your Target Name>' do
