@@ -24,6 +24,7 @@ public final class DataSourceProvider<DataSource: DataSourceType,
     
     public typealias DidSelectParentAtIndexPathClosure = (UITableView, IndexPath, DataSource.Item?) -> Void
     public typealias DidSelectChildAtIndexPathClosure = (UITableView, IndexPath, DataSource.Item.ChildItem?) -> Void
+    public typealias DidDeselectChildAtIndexPathClosure = (UITableView, IndexPath, DataSource.Item.ChildItem?) -> Void
     
     public typealias HeightForChildAtIndexPathClosure = (UITableView, IndexPath, DataSource.Item.ChildItem?) -> CGFloat
     public typealias HeightForParentAtIndexPathClosure = (UITableView, IndexPath, DataSource.Item?) -> CGFloat
@@ -59,6 +60,9 @@ public final class DataSourceProvider<DataSource: DataSourceType,
     /// The closure to be called when a Child cell is selected
     private let didSelectChildAtIndexPath: DidSelectChildAtIndexPathClosure?
     
+    /// The closure to be called when a Chile cell is deselected
+    private let didDeselectChildAtIndexPath: DidDeselectChildAtIndexPathClosure?
+    
     /// The closure to define the height of the Parent cell at the specified IndexPath
     private let heightForParentCellAtIndexPath: HeightForParentAtIndexPathClosure?
     
@@ -80,6 +84,7 @@ public final class DataSourceProvider<DataSource: DataSourceType,
                 childCellConfig: ChildCellConfig,
                 didSelectParentAtIndexPath: DidSelectParentAtIndexPathClosure? = nil,
                 didSelectChildAtIndexPath: DidSelectChildAtIndexPathClosure? = nil,
+                didDeselectChildAtIndexPath: DidDeselectChildAtIndexPathClosure? = nil,
                 heightForParentCellAtIndexPath: HeightForParentAtIndexPathClosure? = nil,
                 heightForChildCellAtIndexPath: HeightForChildAtIndexPathClosure? = nil,
                 scrollViewDidScroll: ScrollViewDidScrollClosure? = nil,
@@ -90,6 +95,7 @@ public final class DataSourceProvider<DataSource: DataSourceType,
         self.childCellConfig = childCellConfig
         self.didSelectParentAtIndexPath = didSelectParentAtIndexPath
         self.didSelectChildAtIndexPath = didSelectChildAtIndexPath
+        self.didDeselectChildAtIndexPath = didDeselectChildAtIndexPath
         self.heightForParentCellAtIndexPath = heightForParentCellAtIndexPath
         self.heightForChildCellAtIndexPath = heightForChildCellAtIndexPath
         self.scrollViewDidScroll = scrollViewDidScroll
@@ -345,6 +351,20 @@ extension DataSourceProvider {
                 let index = indexPath.row - currentPosition - 1
                 let childItem = index >= 0 ? item?.children[index] : nil
                 self.didSelectChildAtIndexPath?(tableView, indexPath, childItem)
+            }
+        }
+        
+        delegate.didDeselectRowAtIndexPath = { [unowned self] (tableView, indexPath) -> Void in
+            let (parentIndex, isParent, currentPosition) = self.dataSource.findParentOfCell(atIndexPath: indexPath)
+            let item = self.dataSource.item(atRow: parentIndex, inSection: indexPath.section)
+            
+            if isParent {
+                self.update(tableView, item, currentPosition, indexPath, parentIndex)
+                self.didSelectParentAtIndexPath?(tableView, indexPath, item)
+            } else {
+                let index = indexPath.row - currentPosition - 1
+                let childItem = index >= 0 ? item?.children[index] : nil
+                self.didDeselectChildAtIndexPath?(tableView, indexPath, childItem)
             }
         }
         

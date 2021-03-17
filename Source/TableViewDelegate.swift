@@ -9,6 +9,7 @@
 import UIKit
 
 typealias DidSelectRowAtIndexPathClosure = (UITableView, IndexPath) -> Void
+typealias DidDeselectRowAtIntexPathClosure = (UITableView, IndexPath) -> Void
 typealias HeightForRowAtIndexPathClosure = (UITableView, IndexPath) -> CGFloat
 public typealias ScrollViewDidScrollClosure = (UIScrollView) -> Void
 
@@ -17,6 +18,7 @@ public typealias ScrollViewDidScrollClosure = (UIScrollView) -> Void
     // MARK: - Properties
     
     var didSelectRowAtIndexPath: DidSelectRowAtIndexPathClosure?
+    var didDeselectRowAtIndexPath: DidDeselectRowAtIntexPathClosure?
     var heightForRowAtIndexPath: HeightForRowAtIndexPathClosure?
     
     var scrollViewDidScrollClosure: ScrollViewDidScrollClosure?
@@ -26,6 +28,10 @@ extension TableViewDelegate: UITableViewDelegate {
     
     @objc func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         didSelectRowAtIndexPath?(tableView, indexPath)
+    }
+    
+    @objc func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        didDeselectRowAtIndexPath?(tableView, indexPath)
     }
     
     @objc func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
