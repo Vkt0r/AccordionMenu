@@ -119,7 +119,11 @@ extension AccordionTableViewController {
         }
         
         let didSelectChildCell = { (tableView: UITableView, indexPath: IndexPath, item: CountryCellModel?) -> Void in
-            print("Child cell \(item!.name) tapped")
+            print("Child cell \(item!.name) selected")
+        }
+        
+        let didDeselectChildCell = { (tableView: UITableView, indexPath: IndexPath, item: Marker?) -> Void in
+            print("Child cell \(item!.icon) deselected")
         }
         
         let scrollViewDidScroll = { (scrollView: UIScrollView) -> Void in
@@ -133,6 +137,7 @@ extension AccordionTableViewController {
                 childCellConfig: childCellConfig,
                 didSelectParentAtIndexPath: didSelectParentCell,
                 didSelectChildAtIndexPath: didSelectChildCell,
+                didDeselectChildAtIndexPath: didDeselectChildCell,
                 scrollViewDidScroll: scrollViewDidScroll,
                 // Configure DataSourceProvider to have only one parent expanded at a time
                 numberOfExpandedParentCells: .single
